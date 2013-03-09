@@ -21,8 +21,6 @@
         </xsd:choice>
     </xsd:group>
 
-    <xsd:complexType name="Expression" abstract="true"/>
-
     <!--An operation requiring two operands-->
     <xsd:complexType name="BinaryOperation" abstract="true">
         <xsd:sequence minOccurs="2" maxOccurs="2">
