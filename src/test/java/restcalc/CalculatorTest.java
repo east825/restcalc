@@ -1,0 +1,147 @@
+package restcalc;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import restcalc.expr.*;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+import javax.xml.bind.JAXBElement;
+import java.net.URI;
+
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
+
+public class CalculatorTest {
+    private static final URI BASE_URI = UriBuilder.fromUri("http://localhost").port(8000).build();
+    private static final URI CALC_RESOURCE_URI = UriBuilder.fromUri(BASE_URI).path("calc/").build();
+
+    private Client client = Client.create();
+    private WebResource resource = client.resource(CALC_RESOURCE_URI);
+    private ObjectFactory factory = new ObjectFactory();
+    private HttpServer server;
+
+    @Before
+    public void runServer() throws Exception {
+        server = GrizzlyServerFactory.createHttpServer(BASE_URI, new TestApplication());
+    }
+
+    @After
+    public void turnServerOff() {
+        server.stop();
+    }
+
+    private <T> void makeRequestAndCheckAnswer(JAXBElement<T> expr, double expected) {
+        NumberExpression result = resource.accept(MediaType.APPLICATION_XML_TYPE).
+                type(MediaType.APPLICATION_XML_TYPE).
+                post(NumberExpression.class, expr);
+        assertThat(result.getValue(), equalTo(expected));
+    }
+
+    @Test
+    public void testNumberExpression() {
+        NumberExpression expr = factory.createNumberExpression();
+        expr.setValue(42);
+        makeRequestAndCheckAnswer(factory.createNum(expr), 42);
+    }
+
+    @Test
+    public void testSumExpression() {
+        NumberExpression e1 = factory.createNumberExpression();
+        e1.setValue(42);
+        NumberExpression e2 = factory.createNumberExpression();
+        e2.setValue(42);
+        SumExpression sum = factory.createSumExpression();
+        sum.getSumOrSubOrMult().add(e1);
+        sum.getSumOrSubOrMult().add(e2);
+        makeRequestAndCheckAnswer(factory.createSum(sum), 84);
+    }
+
+    @Test
+    public void testDivExpression() {
+        NumberExpression e1 = factory.createNumberExpression();
+        e1.setValue(42);
+        NumberExpression e2 = factory.createNumberExpression();
+        e2.setValue(42);
+        DivExpression div = factory.createDivExpression();
+        div.getSumOrSubOrMult().add(e1);
+        div.getSumOrSubOrMult().add(e2);
+        makeRequestAndCheckAnswer(factory.createDiv(div), 1);
+    }
+
+    @Test
+    public void testMultExpression() {
+        NumberExpression e1 = factory.createNumberExpression();
+        e1.setValue(42);
+        NumberExpression e2 = factory.createNumberExpression();
+        e2.setValue(42);
+        MultExpression mult = factory.createMultExpression();
+        mult.getSumOrSubOrMult().add(e1);
+        mult.getSumOrSubOrMult().add(e2);
+        makeRequestAndCheckAnswer(factory.createMult(mult), 1764);
+    }
+
+    @Test
+    public void testSubExpression() {
+        NumberExpression e1 = factory.createNumberExpression();
+        e1.setValue(42);
+        NumberExpression e2 = factory.createNumberExpression();
+        e2.setValue(42);
+        SubExpression sub = factory.createSubExpression();
+        sub.getSumOrSubOrMult().add(e1);
+        sub.getSumOrSubOrMult().add(e2);
+        makeRequestAndCheckAnswer(factory.createSub(sub), 0);
+    }
+
+    @Test
+    public void testNestedUnaryMinus() {
+        NegExpression neg = factory.createNegExpression();
+        NegExpression neg2 = factory.createNegExpression();
+        NumberExpression n = factory.createNumberExpression();
+        n.setValue(42);
+        neg2.setNum(n);
+        neg.setNeg(neg2);
+        makeRequestAndCheckAnswer(factory.createNeg(neg), 42);
+    }
+
+    @Test
+    public void testComplex() {
+        // Evaluating: -(10 + 1 * (20 - 10)) / 20
+
+        // -(10 + 1 * (20 - 10))
+        DivExpression div = factory.createDivExpression();
+        NegExpression neg = factory.createNegExpression();
+        // (10 + 1 * (20 - 10))
+        SumExpression sum = factory.createSumExpression();
+        NumberExpression num = factory.createNumberExpression();
+        num.setValue(10);
+        sum.getSumOrSubOrMult().add(num);
+        // 1 * (20 - 10)
+        MultExpression mult = factory.createMultExpression();
+        num = factory.createNumberExpression();
+        num.setValue(1);
+        mult.getSumOrSubOrMult().add(num);
+        // 20 - 10
+        SubExpression sub = factory.createSubExpression();
+        num = factory.createNumberExpression();
+        num.setValue(20);
+        sub.getSumOrSubOrMult().add(num);
+        num = factory.createNumberExpression();
+        num.setValue(10);
+        sub.getSumOrSubOrMult().add(num);
+        mult.getSumOrSubOrMult().add(sub);
+        sum.getSumOrSubOrMult().add(mult);
+        neg.setSum(sum);
+        div.getSumOrSubOrMult().add(neg);
+        num = factory.createNumberExpression();
+        num.setValue(20);
+        div.getSumOrSubOrMult().add(num);
+        makeRequestAndCheckAnswer(factory.createDiv(div), -1);
+    }
+
+}

@@ -20,7 +20,7 @@ public class CalculatorResource {
     private static Unmarshaller unmarshaller;
 
     static {
-        JAXBContext context = null;
+        JAXBContext context;
         try {
             // JAXB context for all expression types
             context = JAXBContext.newInstance("restcalc.expr");
@@ -51,6 +51,8 @@ public class CalculatorResource {
     private ObjectFactory objectFactory = new ObjectFactory();
 
     private <T> double evaluate(T e) {
+        if (e == null)
+            throw new NullPointerException("Attempt to evaluate null");
         if (e instanceof NumberExpression) {
             return ((NumberExpression) e).getValue();
         } else if (e instanceof NegExpression) {
@@ -58,16 +60,16 @@ public class CalculatorResource {
             if (ne.getNum() != null)
                 return -evaluate(ne.getNum());
             if (ne.getSum() != null)
-                return -evaluate(ne.getNum());
+                return -evaluate(ne.getSum());
             if (ne.getSub() != null)
-                return -evaluate(ne.getNum());
+                return -evaluate(ne.getSub());
             if (ne.getDiv() != null)
-                return -evaluate(ne.getNum());
+                return -evaluate(ne.getDiv());
             if (ne.getMult() != null)
-                return -evaluate(ne.getNum());
+                return -evaluate(ne.getMult());
             if (ne.getNeg() != null)
                 return -evaluate((ne.getNeg()));
-            throw new IllegalArgumentException("Unknown subexpression of NegExpression");
+            throw new IllegalArgumentException("All NegExpression subexpression undefined");
         } else if (e instanceof SumExpression) {
             List<Object> es = ((SumExpression) e).getSumOrSubOrMult();
             return evaluate(es.get(0)) + evaluate(es.get(1));
@@ -81,7 +83,7 @@ public class CalculatorResource {
             List<Object> es = ((DivExpression) e).getSumOrSubOrMult();
             return evaluate(es.get(0)) / evaluate(es.get(1));
         } else {
-            throw new IllegalArgumentException("Unknown expression type");
+            throw new IllegalArgumentException("Unknown expression type: " + e.getClass());
         }
     }
 
