@@ -10,7 +10,7 @@ import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
@@ -91,10 +91,10 @@ public class CalculatorResource {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public JAXBElement<NumberExpression> calcExpression(String xmlSource) {
+    public JAXBElement<NumberExpression> calcExpression(InputStream xmlAsStream) {
         JAXBElement<?> expr;
         try {
-            expr = (JAXBElement<?>) unmarshaller.unmarshal(new StringReader(xmlSource));
+            expr = (JAXBElement<?>) unmarshaller.unmarshal(xmlAsStream);
         } catch (JAXBException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).
                     entity("Malformed XML").type(MediaType.TEXT_PLAIN_TYPE).build());
