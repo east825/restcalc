@@ -1,16 +1,14 @@
 package restcalc;
 
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import restcalc.client.Restcalc;
 import restcalc.expr.*;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBElement;
@@ -20,11 +18,9 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class CalculatorTest {
-    private static final URI BASE_URI = UriBuilder.fromUri("http://localhost").port(8000).build();
-    private static final URI CALC_RESOURCE_URI = UriBuilder.fromUri(BASE_URI).path("calc/").build();
+    private static final URI BASE_URI = UriBuilder.fromUri("http://restcalc").port(8000).build();
 
-    private Client client = Client.create();
-    private WebResource resource = client.resource(CALC_RESOURCE_URI);
+    private Restcalc.Calc calcResource = new Restcalc.Calc();
     private ObjectFactory factory = new ObjectFactory();
     private HttpServer server;
 
@@ -39,9 +35,7 @@ public class CalculatorTest {
     }
 
     private <T> void makeRequestAndCheckAnswer(JAXBElement<T> expr, double expected) {
-        NumberExpression result = resource.accept(MediaType.APPLICATION_XML_TYPE).
-                type(MediaType.APPLICATION_XML_TYPE).
-                post(NumberExpression.class, expr);
+        NumberExpression result = calcResource.postApplicationXmlAsApplicationXml(expr, NumberExpression.class);
         assertThat(result.getValue(), equalTo(expected));
     }
 
@@ -166,9 +160,7 @@ public class CalculatorTest {
 
     @Test
     public void testMalformedRequest() {
-        ClientResponse response = resource.accept(MediaType.APPLICATION_XML_TYPE).
-                type(MediaType.APPLICATION_XML_TYPE).
-                post(ClientResponse.class, "<not-legal/>");
+        ClientResponse response = calcResource.postApplicationXmlAsApplicationXml("<not-legal/>", ClientResponse.class);
         assertThat(response.getStatus(), equalTo(Response.Status.BAD_REQUEST.getStatusCode()));
         assertThat(response.getEntity(String.class), equalTo("Malformed XML"));
     }

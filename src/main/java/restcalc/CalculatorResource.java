@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
+
 @Path("/calc")
 public class CalculatorResource {
 
@@ -51,6 +52,12 @@ public class CalculatorResource {
 
     private ObjectFactory objectFactory = new ObjectFactory();
 
+
+    /**
+     * Actually it's an example of *very* poor OOP style with explicit type checking and casts.
+     * But such solution allows to use xjc-generated classes directly without any manual
+     * customization.
+     */
     private <T> double evaluate(T e) {
         if (e == null)
             throw new NullPointerException("Attempt to evaluate null");
