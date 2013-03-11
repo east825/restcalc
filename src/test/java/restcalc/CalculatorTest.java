@@ -39,6 +39,12 @@ public class CalculatorTest {
         assertThat(result.getValue(), equalTo(expected));
     }
 
+    private void makeRequestAndCheckErrorCodeAndMessage(Object entity) {
+        ClientResponse response = calcResource.postApplicationXmlAsApplicationXml(entity, ClientResponse.class);
+        assertThat(response.getStatus(), equalTo(Response.Status.BAD_REQUEST.getStatusCode()));
+        assertThat(response.getEntity(String.class), equalTo("Malformed XML"));
+    }
+
     @Test
     public void testNumberExpression() {
         NumberExpression expr = factory.createNumberExpression();
@@ -158,11 +164,26 @@ public class CalculatorTest {
         makeRequestAndCheckAnswer(factory.createDiv(div), -1);
     }
 
+    /**
+     * Test various malformed requests
+     */
     @Test
-    public void testMalformedRequest() {
-        ClientResponse response = calcResource.postApplicationXmlAsApplicationXml("<not-legal/>", ClientResponse.class);
-        assertThat(response.getStatus(), equalTo(Response.Status.BAD_REQUEST.getStatusCode()));
-        assertThat(response.getEntity(String.class), equalTo("Malformed XML"));
+    public void malformedXML() {
+        makeRequestAndCheckErrorCodeAndMessage("<foo bar=\"baz\">quux</foo>");
+        NumberExpression num = factory.createNumberExpression();
+        num.setValue(42);
+        SumExpression sumExpression = factory.createSumExpression();
+        sumExpression.getSumOrSubOrMult().add(num);
+        // not enough arguments
+        makeRequestAndCheckErrorCodeAndMessage(factory.createSum(sumExpression));
+        sumExpression.getSumOrSubOrMult().add(num);
+        sumExpression.getSumOrSubOrMult().add(num);
+        // too many this time
+        makeRequestAndCheckErrorCodeAndMessage(factory.createSum(sumExpression));
+        // num tag attribute is not of type double
+        makeRequestAndCheckErrorCodeAndMessage("<num value\"spam\"/>");
+        // not valid XML at all
+        makeRequestAndCheckErrorCodeAndMessage("This is not XML");
     }
 
 }
