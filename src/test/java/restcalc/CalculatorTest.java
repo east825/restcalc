@@ -75,6 +75,24 @@ public class CalculatorTest {
     }
 
     @Test
+    /**
+     * We used doubles as arguments in arithmetical expression, so
+     * zero division should produce Inf, instead of RuntimeException on
+     * server side.
+     */
+    public void testZeroDivision() {
+        NumberExpression num = factory.createNumberExpression();
+        num.setValue(1);
+        NumberExpression denom = factory.createNumberExpression();
+        denom.setValue(0);
+        DivExpression expr = factory.createDivExpression();
+        expr.getSumOrSubOrMult().add(num);
+        expr.getSumOrSubOrMult().add(denom);
+        makeRequestAndCheckAnswer(factory.createDiv(expr), Double.POSITIVE_INFINITY);
+    }
+
+
+    @Test
     public void testMultExpression() {
         NumberExpression e1 = factory.createNumberExpression();
         e1.setValue(42);
