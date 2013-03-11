@@ -5,6 +5,7 @@ import restcalc.expr.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.validation.Schema;
@@ -95,7 +96,8 @@ public class CalculatorResource {
         try {
             expr = (JAXBElement<?>) unmarshaller.unmarshal(new StringReader(xmlSource));
         } catch (JAXBException e) {
-            throw new WebApplicationException(400);
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).
+                    entity("Malformed XML").type(MediaType.TEXT_PLAIN_TYPE).build());
         }
 //        System.out.println(expr.getName().getLocalPart());
 //        System.out.println(((SumExpression)expr.getValue()).getSumOrSubOrMult().get(0));

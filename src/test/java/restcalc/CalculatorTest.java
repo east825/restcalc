@@ -1,6 +1,7 @@
 package restcalc;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import restcalc.expr.*;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBElement;
 import java.net.URI;
@@ -160,6 +162,15 @@ public class CalculatorTest {
         num.setValue(20);
         div.getSumOrSubOrMult().add(num);
         makeRequestAndCheckAnswer(factory.createDiv(div), -1);
+    }
+
+    @Test
+    public void testMalformedRequest() {
+        ClientResponse response = resource.accept(MediaType.APPLICATION_XML_TYPE).
+                type(MediaType.APPLICATION_XML_TYPE).
+                post(ClientResponse.class, "<not-legal/>");
+        assertThat(response.getStatus(), equalTo(Response.Status.BAD_REQUEST.getStatusCode()));
+        assertThat(response.getEntity(String.class), equalTo("Malformed XML"));
     }
 
 }
