@@ -125,9 +125,6 @@
                 </executions>
                 <configuration>
                     <generatePackage>restcalc.expr</generatePackage>
-                    <extension>true</extension>
-                    <strict>false</strict>
-                    <verbose>true</verbose>
                 </configuration>
             </plugin>
         </plugins>
