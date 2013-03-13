@@ -2,10 +2,10 @@ package restcalc;
 
 import org.xml.sax.SAXException;
 import restcalc.expr.*;
+import restcalc.expr.Error;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.validation.Schema;
@@ -98,13 +98,15 @@ public class CalculatorResource {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public JAXBElement<NumberExpression> calcExpression(InputStream xmlAsStream) {
+    public Object calcExpression(InputStream xmlAsStream) {
         JAXBElement<?> expr;
         try {
             expr = (JAXBElement<?>) unmarshaller.unmarshal(xmlAsStream);
         } catch (JAXBException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).
-                    entity("Malformed XML").type(MediaType.TEXT_PLAIN_TYPE).build());
+            Error errorResponse = objectFactory.createError();
+            errorResponse.setMsg("Malformed XML");
+            errorResponse.setType(ErrorType.INVALID_XML);
+            return errorResponse;
         }
 //        System.out.println(expr.getName().getLocalPart());
 //        System.out.println(((SumExpression)expr.getValue()).getSumOrSubOrMult().get(0));

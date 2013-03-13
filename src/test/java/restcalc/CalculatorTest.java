@@ -1,6 +1,5 @@
 package restcalc;
 
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
@@ -8,8 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import restcalc.client.Restcalc;
 import restcalc.expr.*;
+import restcalc.expr.Error;
 
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.JAXBElement;
 import java.net.URI;
@@ -19,7 +18,6 @@ import static org.junit.Assert.assertThat;
 
 public class CalculatorTest {
     private static final URI BASE_URI = UriBuilder.fromUri("http://restcalc").port(8000).build();
-
     private Restcalc.Calc calcResource = new Restcalc.Calc();
     private ObjectFactory factory = new ObjectFactory();
     private HttpServer server;
@@ -40,9 +38,12 @@ public class CalculatorTest {
     }
 
     private void makeRequestAndCheckErrorCodeAndMessage(Object entity) {
-        ClientResponse response = calcResource.postApplicationXmlAsApplicationXml(entity, ClientResponse.class);
-        assertThat(response.getStatus(), equalTo(Response.Status.BAD_REQUEST.getStatusCode()));
-        assertThat(response.getEntity(String.class), equalTo("Malformed XML"));
+        Error response = calcResource.postApplicationXmlAsApplicationXml(entity, Error.class);
+        Error errorResponse = factory.createError();
+        errorResponse.setMsg("Malformed XML");
+        errorResponse.setType(ErrorType.INVALID_XML);
+        assertThat(response.getMsg(), equalTo(errorResponse.getMsg()));
+        assertThat(response.getType(), equalTo(errorResponse.getType()));
     }
 
     @Test
