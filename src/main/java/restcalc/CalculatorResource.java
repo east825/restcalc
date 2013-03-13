@@ -22,6 +22,10 @@ public class CalculatorResource {
     private static Unmarshaller unmarshaller;
 
     static {
+        initializeJAXB();
+    }
+
+    private static void initializeJAXB() {
         JAXBContext context;
         try {
             // JAXB context for all expression types
@@ -33,19 +37,19 @@ public class CalculatorResource {
             marshaller = context.createMarshaller();
             unmarshaller = context.createUnmarshaller();
         } catch (JAXBException e) {
-            throw new AssertionError("Can't create marshaller/unmarshaller");
+            throw new AssertionError("Can't create marshaller/unmarshaller", e);
         }
         try {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         } catch (PropertyException e) {
-            throw new AssertionError("Can't set formatted output property on marshaller");
+            throw new AssertionError("Can't set formatted output property on marshaller", e);
         }
         URL schemaURL = CalculatorResource.class.getResource("/expression.xsd");
         Schema schema;
         try {
             schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaURL);
         } catch (SAXException e) {
-            throw new AssertionError("Can't load schema");
+            throw new AssertionError("Can't load schema", e);
         }
         unmarshaller.setSchema(schema);
     }
