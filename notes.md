@@ -101,23 +101,94 @@ Namespaces
 * xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" (see [here][JAXB-schema])
 * xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 
-TIPS
+CUTOMIZTIONS
+------------
+
+see 
+
+1. [Java EE tutorial chapter](http://docs.oracle.com/javaee/5/tutorial/doc/bnbbf.html#bnbbz)
+2. [JAXB tutorial on java.net](http://jaxb.java.net/tutorial/section_5_1-Customizing.html#Customizing)
+3. [Adding behavior example in Unofficial JAXB Guide](http://jaxb.java.net/guide/Adding_behaviors.html) 
+
+Change class (complexType) name inside of schema definition
+
+      <xsd:complexType>
+         <xsd:annotation>
+            <xsd:appinfo>
+               <jaxb:class name="SumExpression"/>
+            </xsd:appinfo>
+         </xsd:annotation>
+         ...
+      </xsd:complexType>
+      
+Change property name (inline)
+
+    <xsd:element name="class" type="ClassType">
+      <xsd:annotation>
+        <xsd:appinfo>
+          <jxb:property name="klass"/>
+        </xsd:appinfo>
+      </xsd:annotation>
+    </xsd:element>
+      
+Change package name (inline)
+
+      <xsd:annotation>
+        <xsd:appinfo>
+          <jaxb:schemaBindings>
+            <jaxb:package name="jess.ruleml"/>
+          </jaxb:schemaBindings>
+        </xsd:appinfo>
+      </xsd:annotation>
+      
+Change package name (in external binding file)
+
+      <jaxb:bindings xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+                     version="2.0">
+        <jaxb:schemaBindings>
+          <jaxb:package name="jess.ruleml"/>
+        </jaxb:schemaBindings>
+      </jaxb:bindings>
+      
+Binding file for any schema: `<jxb:bindings schemaLocation = "xs:anyURI">`
+Binding for whole schema (e.g. set custom package name): 
+
+      <jxb:bindings schemaLocation="po.xsd" node="/xs:schema">
+         ...
+      </xjb:bindings>
+      
+Custom converters for simple types (inline)
+
+      <jaxb:globalBindings>
+        <jaxb:javaType name="String"
+                       xmlType="xsd:string"
+                       parseMethod="faststring.StringInterner.parseStringToString"/>
+      </jaxb:globalBindings>
+      
+   external...
+      
+      <?xml version="1.0" encoding="UTF-8"?>
+      <jaxb:bindings xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+                     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                     jaxb:version="1.0">
+        <jaxb:bindings schemaLocation="roman.xsd" node="/xsd:schema">
+          <jaxb:bindings node="//xsd:simpleType[@name='RomanNumberType']">
+            <jaxb:javaType name="int"
+              parseMethod="util.roman.RomanNumberConverter.parseStringToInt"
+              printMethod="util.roman.RomanNumberConverter.printIntToString"/>
+          </jaxb:bindings>
+        </jaxb:bindings>
+      </jaxb:bindings>
+      
+Disable typesafe enums generation for `enumeration` restriction if it has more than 0 elements
+
+      
+
+
+MISC
 ----
 
-* Change class (complexType) name inside of schema definition
-
-        <xsd:complexType>
-            <xsd:annotation>
-                <xsd:appinfo>
-                    <jaxb:class name="SumExpression"/>
-                </xsd:appinfo>
-            </xsd:annotation>
-            <xsd:complexContent>
-                <xsd:extension base="BinaryOperation"/>
-            </xsd:complexContent>
-        </xsd:complexType>
-
-    * NOTE: in this case @XMLRootElemet annotation will not be added to the generated class
+ * NOTE: in this case @XMLRootElemet annotation will not be added to the generated class
 
 * Children elements (like the ones in xsd:sequence that translated to List<Object>) represented as actual types, not as 
 JAXBElement<ActualType>
