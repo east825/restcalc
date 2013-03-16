@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              version="2.0"
+              schemaLocation="expression.xsd">
+    <!--Add `isSetField` method for each possible subexpression in UnaryOperationMixin-->
+    <jxb:globalBindings choiceContentProperty="true"/>
+    <!-- Prefix all generated classes with `XML` -->
+    <jxb:schemaBindings>
+        <jxb:package name="restcalc.expr"/>
+        <jxb:nameXmlTransform>
+            <jxb:typeName suffix="Type"/>
+            <!--<jxb:elementName suffix="Expression"/>-->
+            <!--<jxb:anonymousTypeName suffix="ExpressionMixin"/>-->
+        </jxb:nameXmlTransform>
+    </jxb:schemaBindings>
+
+    <!--Rename ugly `sumOrSubOrMult` property to `operands` -->
+    <jxb:bindings node="//xsd:complexType[@name='BinaryOperation']//xsd:sequence">
+        <jxb:property name="operands"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='UnaryOperation']//xsd:sequence">
+        <jxb:property name="operand"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:element[@name='expression']/xsd:complexType//xsd:group">
+        <jxb:property name="expr"/>
+    </jxb:bindings>
+
+    <!-- Intermediate classes adding behavior -->
+    <jxb:bindings node="//xsd:complexType[@name='Expression']">
+        <jxb:class implClass="restcalc.expr.impl.ExpressionMixin"/>
+    </jxb:bindings>
+
+    <!--<jxb:bindings node="//xsd:complexType[@name='UnaryOperation']">-->
+        <!--<jxb:class implClass="restcalc.expr.impl.UnaryOperationMixin"/>-->
+    <!--</jxb:bindings>-->
+
+    <jxb:bindings node="//xsd:complexType[@name='BinaryOperation']">
+        <jxb:class implClass="restcalc.expr.impl.BinaryOperationMixin"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='ConstantExpression']">
+        <jxb:class implClass="restcalc.expr.impl.ConstantExpressionMixin"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='NegExpression']">
+        <jxb:class implClass="restcalc.expr.impl.NegExpressionMixin"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='SumExpression']">
+        <jxb:class implClass="restcalc.expr.impl.SumExpressionMixin"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='SubExpression']">
+        <jxb:class implClass="restcalc.expr.impl.SubExpressionMixin"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='MultExpression']">
+        <jxb:class implClass="restcalc.expr.impl.MultExpressionMixin"/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xsd:complexType[@name='DivExpression']">
+        <jxb:class implClass="restcalc.expr.impl.DivExpressionMixin"/>
+    </jxb:bindings>
+
+    <!-- Top-level expression names -->
+
+    <jxb:bindings node="//xsd:element[@name='const']/xsd:complexType">
+        <jxb:class name="Constant"/>
+    </jxb:bindings>
+    <jxb:bindings node="//xsd:element[@name='sum']/xsd:complexType">
+        <jxb:class name="Addition"/>
+    </jxb:bindings>
+    <jxb:bindings node="//xsd:element[@name='sub']/xsd:complexType">
+        <jxb:class name="Subtraction"/>
+    </jxb:bindings>
+    <jxb:bindings node="//xsd:element[@name='neg']/xsd:complexType">
+        <jxb:class name="Negation"/>
+    </jxb:bindings>
+    <jxb:bindings node="//xsd:element[@name='div']/xsd:complexType">
+        <jxb:class name="Division"/>
+    </jxb:bindings>
+    <jxb:bindings node="//xsd:element[@name='mult']/xsd:complexType">
+        <jxb:class name="Multiplication"/>
+    </jxb:bindings>
+
+</jxb:bindings>

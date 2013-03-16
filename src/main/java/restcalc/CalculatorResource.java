@@ -1,18 +1,20 @@
 package restcalc;
 
 import org.xml.sax.SAXException;
-import restcalc.expr.*;
-import restcalc.expr.Error;
+import restcalc.expr.Constant;
+import restcalc.expr.Expression;
+import restcalc.expr.ObjectFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
 
 
 @Path("/calc")
@@ -62,62 +64,62 @@ public class CalculatorResource {
      * But such solution allows to use xjc-generated classes directly without any manual
      * customization.
      */
-    private <T> double evaluate(T e) {
-        if (e == null)
-            throw new NullPointerException("Attempt to evaluate null");
-        if (e instanceof NumberExpression) {
-            return ((NumberExpression) e).getValue();
-        } else if (e instanceof NegExpression) {
-            NegExpression ne = (NegExpression) e;
-            if (ne.getNum() != null)
-                return -evaluate(ne.getNum());
-            if (ne.getSum() != null)
-                return -evaluate(ne.getSum());
-            if (ne.getSub() != null)
-                return -evaluate(ne.getSub());
-            if (ne.getDiv() != null)
-                return -evaluate(ne.getDiv());
-            if (ne.getMult() != null)
-                return -evaluate(ne.getMult());
-            if (ne.getNeg() != null)
-                return -evaluate((ne.getNeg()));
-            throw new IllegalArgumentException("All NegExpression subexpression undefined");
-        } else if (e instanceof SumExpression) {
-            List<Object> es = ((SumExpression) e).getSumOrSubOrMult();
-            return evaluate(es.get(0)) + evaluate(es.get(1));
-        } else if (e instanceof SubExpression){
-            List<Object> es = ((SubExpression) e).getSumOrSubOrMult();
-            return evaluate(es.get(0)) - evaluate(es.get(1));
-        } else if (e instanceof MultExpression){
-            List<Object> es = ((MultExpression) e).getSumOrSubOrMult();
-            return evaluate(es.get(0)) * evaluate(es.get(1));
-        } else if (e instanceof DivExpression){
-            List<Object> es = ((DivExpression) e).getSumOrSubOrMult();
-            return evaluate(es.get(0)) / evaluate(es.get(1));
-        } else {
-            throw new IllegalArgumentException("Unknown expression type: " + e.getClass());
-        }
-    }
+//    private <T> double evaluate(T e) {
+//        if (e == null)
+//            throw new NullPointerException("Attempt to evaluate null");
+//        if (e instanceof ConstantExpressionMixin) {
+//            return ((ConstantExpressionMixin) e).getValue();
+//        } else if (e instanceof NegExpressionMixin) {
+//            NegExpressionMixin ne = (NegExpressionMixin) e;
+//            if (ne.getNum() != null)
+//                return -evaluate(ne.getNum());
+//            if (ne.getSum() != null)
+//                return -evaluate(ne.getSum());
+//            if (ne.getSub() != null)
+//                return -evaluate(ne.getSub());
+//            if (ne.getDiv() != null)
+//                return -evaluate(ne.getDiv());
+//            if (ne.getMult() != null)
+//                return -evaluate(ne.getMult());
+//            if (ne.getNeg() != null)
+//                return -evaluate((ne.getNeg()));
+//            throw new IllegalArgumentException("All NegExpressionMixin subexpression undefined");
+//        } else if (e instanceof SumExpressionMixin) {
+//            List<Object> es = ((SumExpressionMixin) e).getSumOrSubOrMult();
+//            return evaluate(es.get(0)) + evaluate(es.get(1));
+//        } else if (e instanceof SubExpressionMixin){
+//            List<Object> es = ((SubExpressionMixin) e).getSumOrSubOrMult();
+//            return evaluate(es.get(0)) - evaluate(es.get(1));
+//        } else if (e instanceof MultExpressionMixin){
+//            List<Object> es = ((MultExpressionMixin) e).getSumOrSubOrMult();
+//            return evaluate(es.get(0)) * evaluate(es.get(1));
+//        } else if (e instanceof DivExpressionMixin){
+//            List<Object> es = ((DivExpressionMixin) e).getSumOrSubOrMult();
+//            return evaluate(es.get(0)) / evaluate(es.get(1));
+//        } else {
+//            throw new IllegalArgumentException("Unknown expression type: " + e.getClass());
+//        }
+//    }
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public Object calcExpression(InputStream xmlAsStream) {
-        JAXBElement<?> expr;
-        try {
-            expr = (JAXBElement<?>) unmarshaller.unmarshal(xmlAsStream);
-        } catch (JAXBException e) {
-            Error errorResponse = objectFactory.createError();
-            errorResponse.setMsg("Malformed XML");
-            errorResponse.setType(ErrorType.INVALID_XML);
-            return errorResponse;
-        }
+    public Expression calcExpression(Expression request) {
+//        Expression request;
+//        try {
+//            request = (Expression) unmarshaller.unmarshal(stream);
+//        } catch (JAXBException e) {
+//            return Response.status(400).build();
+//        }
 //        System.out.println(expr.getName().getLocalPart());
-//        System.out.println(((SumExpression)expr.getValue()).getSumOrSubOrMult().get(0));
-//        NumberExpression res = new NumberExpression();
+//        System.out.println(((SumExpressionMixin)expr.getValue()).getSumOrSubOrMult().get(0));
+//        ConstantExpressionMixin res = new ConstantExpressionMixin();
 //        res.setValue(evaluate(expr));
-        NumberExpression result = objectFactory.createNumberExpression();
-        result.setValue(evaluate(expr.getValue()));
-        return objectFactory.createNum(result);
+        System.out.println(request);
+        Constant resultConst = objectFactory.createConstant();
+        resultConst.setValue(request.getExpr().evaluate());
+        Expression result = objectFactory.createExpression();
+        result.setExpr(resultConst);
+        return result;
     }
 }
