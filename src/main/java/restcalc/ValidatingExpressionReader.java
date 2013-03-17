@@ -1,6 +1,7 @@
 package restcalc;
 
-import restcalc.expr.Expression;
+import restcalc.expr.CalculationRequest;
+import restcalc.result.CalculationResult;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
@@ -23,12 +24,12 @@ import java.lang.reflect.Type;
 
 @Provider
 @Consumes(MediaType.APPLICATION_XML)
-public class ValidatingExpressionReader implements MessageBodyReader<Expression> {
+public class ValidatingExpressionReader implements MessageBodyReader<CalculationRequest> {
     private Unmarshaller unmarshaller;
     public ValidatingExpressionReader() {
 
         try {
-            JAXBContext context = JAXBContext.newInstance(Expression.class);
+            JAXBContext context = JAXBContext.newInstance(CalculationRequest.class);
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(getClass().getResource("/expression.xsd"));
             unmarshaller = context.createUnmarshaller();
@@ -40,15 +41,20 @@ public class ValidatingExpressionReader implements MessageBodyReader<Expression>
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type == Expression.class;
+        return type == CalculationRequest.class;
     }
 
     @Override
-    public Expression readFrom(Class<Expression> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+    public CalculationRequest readFrom(Class<CalculationRequest> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
         try {
-            return (Expression) unmarshaller.unmarshal(entityStream);
+            return (CalculationRequest) unmarshaller.unmarshal(entityStream);
         } catch (JAXBException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Malformed XML").build());
+            CalculationResult error = new CalculationResult();
+            error.setError("Malformed XML");
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.APPLICATION_XML_TYPE)
+                    .entity(error).build());
         }
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jxb:bindings xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:jsb="http://java.sun.com/xml/ns/jaxb"
               version="2.0"
               schemaLocation="expression.xsd">
     <!--Add `isSetField` method for each possible subexpression in UnaryOperationMixin-->
@@ -10,7 +10,7 @@
         <jxb:package name="restcalc.expr"/>
         <jxb:nameXmlTransform>
             <jxb:typeName suffix="Type"/>
-            <!--<jxb:elementName suffix="Expression"/>-->
+            <!--<jxb:elementName suffix="CalculationRequest"/>-->
             <!--<jxb:anonymousTypeName suffix="ExpressionMixin"/>-->
         </jxb:nameXmlTransform>
     </jxb:schemaBindings>
@@ -24,7 +24,7 @@
         <jxb:property name="operand"/>
     </jxb:bindings>
 
-    <jxb:bindings node="//xsd:element[@name='expression']/xsd:complexType//xsd:group">
+    <jxb:bindings node="//xsd:element[@name='calc']/xsd:complexType//xsd:group">
         <jxb:property name="expr"/>
     </jxb:bindings>
 
@@ -85,5 +85,10 @@
     <jxb:bindings node="//xsd:element[@name='mult']/xsd:complexType">
         <jxb:class name="Multiplication"/>
     </jxb:bindings>
+
+    <!-- Root element name -->
+    <jsb:bindings node="//xsd:element[@name='calc']">
+        <jxb:class name="CalculationRequest"/>
+    </jsb:bindings>
 
 </jxb:bindings>

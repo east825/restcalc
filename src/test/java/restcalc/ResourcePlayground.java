@@ -8,8 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import restcalc.expr.CalculationRequest;
 import restcalc.expr.Constant;
-import restcalc.expr.Expression;
 import restcalc.expr.ObjectFactory;
 
 import javax.ws.rs.core.MediaType;
@@ -45,7 +45,7 @@ public class ResourcePlayground {
 
     @Test
     public void sendConstant() throws JAXBException{
-        Expression req = factory.createExpression();
+        CalculationRequest req = factory.createCalculationRequest();
         Constant constant = factory.createConstant();
         constant.setValue(Math.PI);
         req.setExpr(constant);

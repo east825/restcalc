@@ -64,7 +64,7 @@
         </xsd:choice>
     </xsd:group>
 
-    <xsd:element name="expression">
+    <xsd:element name="calc">
         <xsd:complexType>
             <xsd:group ref="anyExpr"/>
         </xsd:complexType>

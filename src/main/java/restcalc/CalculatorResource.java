@@ -1,8 +1,7 @@
 package restcalc;
 
-import restcalc.expr.Constant;
-import restcalc.expr.Expression;
-import restcalc.expr.ObjectFactory;
+import restcalc.expr.CalculationRequest;
+import restcalc.result.CalculationResult;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -16,13 +15,9 @@ public class CalculatorResource {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    public Expression calcExpression(Expression request) {
-        ObjectFactory objectFactory = new ObjectFactory();
-        System.out.println(request);
-        Constant resultConst = objectFactory.createConstant();
-        resultConst.setValue(request.getExpr().evaluate());
-        Expression result = objectFactory.createExpression();
-        result.setExpr(resultConst);
+    public CalculationResult calcExpression(CalculationRequest request) {
+        CalculationResult result = new CalculationResult();
+        result.setValue(request.getExpr().evaluate());
         return result;
     }
 }

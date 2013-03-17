@@ -1,17 +1,22 @@
 package restcalc;
 
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import restcalc.client.Restcalc;
-import restcalc.expr.Expression;
+import restcalc.expr.Addition;
+import restcalc.expr.CalculationRequest;
 import restcalc.expr.ObjectFactory;
 import restcalc.expr.impl.ExpressionMixin;
+import restcalc.result.CalculationResult;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Arrays;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
@@ -35,38 +40,40 @@ public class CalculatorTest {
         server.stop();
     }
 
-    private void makeRequestAndCheckAnswer(ExpressionMixin expr, double expected) {
-        Expression request = factory.createExpression();
+    private void makeRequestAndCheckResult(ExpressionMixin expr, double expected) {
+        CalculationRequest request = factory.createCalculationRequest();
         request.setExpr(expr);
-        Expression result = calcResource.postApplicationXmlAsApplicationXml(request, Expression.class);
-        assertThat(result.getExpr().evaluate(), equalTo(expected));
+        CalculationResult result = calcResource.postApplicationXmlAsApplicationXml(request, CalculationResult.class);
+        assertThat(result.getValue(), equalTo(expected));
     }
 
-//    private void makeRequestAndCheckErrorCodeAndMessage(Object entity) {
-//        Error response = calcResource.postApplicationXmlAsApplicationXml(entity, Error.class);
-//        Error errorResponse = factory.createError();
-//        errorResponse.setMsg("Malformed XML");
-//        errorResponse.setType(ErrorType.INVALID_XML);
-//        assertThat(response.getMsg(), equalTo(errorResponse.getMsg()));
-//        assertThat(response.getType(), equalTo(errorResponse.getType()));
-//    }
+    private void makeRequestAndCheckErrorCodeAndMessage(ExpressionMixin e) {
+        CalculationRequest request = new CalculationRequest();
+        request.setExpr(e);
+        makeRequestAndCheckErrorCodeAndMessage(request);
+    }
+    private void makeRequestAndCheckErrorCodeAndMessage(Object entity) {
+        ClientResponse response = calcResource.postApplicationXmlAsApplicationXml(entity, ClientResponse.class);
+        assertThat(response.getStatus(), equalTo(Response.Status.BAD_REQUEST.getStatusCode()));
+        assertThat(response.getEntity(CalculationResult.class).getError(), equalTo(("Malformed XML")));
+    }
 
     @Test
     public void simpleTests() {
         // test constant
-        makeRequestAndCheckAnswer(newConstant(42), 42);
+        makeRequestAndCheckResult(newConstant(42), 42);
         // test unary minus
-        makeRequestAndCheckAnswer(newNegation(newNegation(newConstant(42))), 42);
+        makeRequestAndCheckResult(newNegation(newNegation(newConstant(42))), 42);
         // test addition
-        makeRequestAndCheckAnswer(newAddition(newConstant(42), newConstant(42)), 84);
+        makeRequestAndCheckResult(newAddition(newConstant(42), newConstant(42)), 84);
         // test subtraction
-        makeRequestAndCheckAnswer(newSubtraction(newConstant(42), newConstant(42)), 0);
+        makeRequestAndCheckResult(newSubtraction(newConstant(42), newConstant(42)), 0);
         // test multiplication
-        makeRequestAndCheckAnswer(newMultiplication(newConstant(10), newConstant(10)), 100);
+        makeRequestAndCheckResult(newMultiplication(newConstant(10), newConstant(10)), 100);
         // test division
-        makeRequestAndCheckAnswer(newDivision(newConstant(42), newConstant(42)), 1);
+        makeRequestAndCheckResult(newDivision(newConstant(42), newConstant(42)), 1);
         // special check for zero division
-        makeRequestAndCheckAnswer(newDivision(newConstant(1), newConstant(0)), Double.POSITIVE_INFINITY);
+        makeRequestAndCheckResult(newDivision(newConstant(1), newConstant(0)), Double.POSITIVE_INFINITY);
     }
 
     @Test
@@ -87,29 +94,25 @@ public class CalculatorTest {
                 ),
                 newConstant(20)
         );
-        makeRequestAndCheckAnswer(expr, -1);
+        makeRequestAndCheckResult(expr, -1);
     }
 
-//    /**
-//     * Test various malformed requests
-//     */
-//    @Test
-//    public void malformedXML() {
-//        makeRequestAndCheckErrorCodeAndMessage("<foo bar=\"baz\">quux</foo>");
-//        ConstantExpressionMixin num = factory.createNumberExpression();
-//        num.setValue(42);
-//        SumExpressionMixin sumExpression = factory.createSumExpression();
-//        sumExpression.getSumOrSubOrMult().add(num);
-//        // not enough arguments
-//        makeRequestAndCheckErrorCodeAndMessage(factory.createSum(sumExpression));
-//        sumExpression.getSumOrSubOrMult().add(num);
-//        sumExpression.getSumOrSubOrMult().add(num);
-//        // too many this time
-//        makeRequestAndCheckErrorCodeAndMessage(factory.createSum(sumExpression));
-//        // num tag attribute is not of type double
-//        makeRequestAndCheckErrorCodeAndMessage("<num value\"spam\"/>");
-//        // not valid XML at all
-//        makeRequestAndCheckErrorCodeAndMessage("This is not XML");
-//    }
+    /**
+     * Test various malformed requests
+     */
+    @Test
+    public void malformedXML() {
+        makeRequestAndCheckErrorCodeAndMessage("<foo bar=\"baz\">quux</foo>");
+        // not enough arguments
+        makeRequestAndCheckErrorCodeAndMessage(newAddition(newConstant(1), null));
+        // too many this time
+        Addition malformed = new Addition();
+        malformed.getOperands().addAll(Arrays.asList(newConstant(1), newConstant(2), newConstant(3)));
+        makeRequestAndCheckErrorCodeAndMessage(malformed);
+        // num tag attribute is not of type double
+        makeRequestAndCheckErrorCodeAndMessage("<num value\"spam\"/>");
+        // not valid XML at all
+        makeRequestAndCheckErrorCodeAndMessage("This is not XML");
+    }
 
 }
