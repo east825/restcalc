@@ -30,7 +30,7 @@
 
     <!-- Intermediate classes adding behavior -->
     <jxb:bindings node="//xsd:complexType[@name='Expression']">
-        <jxb:class implClass="restcalc.expr.impl.ExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.Expression"/>
     </jxb:bindings>
 
     <!--<jxb:bindings node="//xsd:complexType[@name='UnaryOperation']">-->

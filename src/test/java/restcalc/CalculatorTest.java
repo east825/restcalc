@@ -10,7 +10,7 @@ import restcalc.client.Restcalc;
 import restcalc.expr.Addition;
 import restcalc.expr.CalculationRequest;
 import restcalc.expr.ObjectFactory;
-import restcalc.expr.impl.ExpressionMixin;
+import restcalc.expr.Expression;
 import restcalc.result.CalculationResult;
 
 import javax.ws.rs.core.Response;
@@ -40,14 +40,14 @@ public class CalculatorTest {
         server.stop();
     }
 
-    private void makeRequestAndCheckResult(ExpressionMixin expr, double expected) {
+    private void makeRequestAndCheckResult(Expression expr, double expected) {
         CalculationRequest request = factory.createCalculationRequest();
         request.setExpr(expr);
         CalculationResult result = calcResource.postApplicationXmlAsApplicationXml(request, CalculationResult.class);
         assertThat(result.getValue(), equalTo(expected));
     }
 
-    private void makeRequestAndCheckErrorCodeAndMessage(ExpressionMixin e) {
+    private void makeRequestAndCheckErrorCodeAndMessage(Expression e) {
         CalculationRequest request = new CalculationRequest();
         request.setExpr(e);
         makeRequestAndCheckErrorCodeAndMessage(request);
@@ -79,7 +79,7 @@ public class CalculatorTest {
     @Test
     public void complexExpression() {
         // -(10 + 1 * (20 - 10)) / 20
-        ExpressionMixin expr = newDivision(
+        Expression expr = newDivision(
                 newNegation(
                         newAddition(
                                 newConstant(10),
