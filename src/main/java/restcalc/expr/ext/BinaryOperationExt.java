@@ -1,4 +1,4 @@
-package restcalc.expr.impl;
+package restcalc.expr.ext;
 
 import restcalc.expr.BinaryOperationType;
 import restcalc.expr.Expression;
@@ -6,7 +6,7 @@ import restcalc.expr.Expression;
 import javax.xml.bind.annotation.XmlTransient;
 
 @XmlTransient
-public abstract class BinaryOperationMixin extends BinaryOperationType {
+public abstract class BinaryOperationExt extends BinaryOperationType {
 
     public Expression getLeftOperand() {
         return operands.get(0);

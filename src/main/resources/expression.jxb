@@ -34,35 +34,35 @@
     </jxb:bindings>
 
     <!--<jxb:bindings node="//xsd:complexType[@name='UnaryOperation']">-->
-        <!--<jxb:class implClass="restcalc.expr.impl.UnaryOperationMixin"/>-->
+        <!--<jxb:class implClass="restcalc.expr.extUnaryOperationMixin"/>-->
     <!--</jxb:bindings>-->
 
     <jxb:bindings node="//xsd:complexType[@name='BinaryOperation']">
-        <jxb:class implClass="restcalc.expr.impl.BinaryOperationMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.BinaryOperationExt"/>
     </jxb:bindings>
 
     <jxb:bindings node="//xsd:complexType[@name='ConstantExpression']">
-        <jxb:class implClass="restcalc.expr.impl.ConstantExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.ConstantExpressionExt"/>
     </jxb:bindings>
 
     <jxb:bindings node="//xsd:complexType[@name='NegExpression']">
-        <jxb:class implClass="restcalc.expr.impl.NegExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.NegExpressionExt"/>
     </jxb:bindings>
 
     <jxb:bindings node="//xsd:complexType[@name='SumExpression']">
-        <jxb:class implClass="restcalc.expr.impl.SumExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.SumExpressionExt"/>
     </jxb:bindings>
 
     <jxb:bindings node="//xsd:complexType[@name='SubExpression']">
-        <jxb:class implClass="restcalc.expr.impl.SubExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.SubExpressionExt"/>
     </jxb:bindings>
 
     <jxb:bindings node="//xsd:complexType[@name='MultExpression']">
-        <jxb:class implClass="restcalc.expr.impl.MultExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.MultExpressionExt"/>
     </jxb:bindings>
 
     <jxb:bindings node="//xsd:complexType[@name='DivExpression']">
-        <jxb:class implClass="restcalc.expr.impl.DivExpressionMixin"/>
+        <jxb:class implClass="restcalc.expr.ext.DivExpressionExt"/>
     </jxb:bindings>
 
     <!-- Top-level expression names -->

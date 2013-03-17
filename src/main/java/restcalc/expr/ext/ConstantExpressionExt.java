@@ -1,11 +1,11 @@
-package restcalc.expr.impl;
+package restcalc.expr.ext;
 
 import restcalc.expr.ConstantExpressionType;
 
 import javax.xml.bind.annotation.XmlTransient;
 
 @XmlTransient
-public class ConstantExpressionMixin extends ConstantExpressionType {
+public class ConstantExpressionExt extends ConstantExpressionType {
     @Override
     public double evaluate() {
         return getValue();
