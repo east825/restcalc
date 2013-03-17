@@ -1,13 +1,11 @@
 package restcalc;
 
 import restcalc.expr.CalculationRequest;
-import restcalc.result.CalculationResult;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 import javax.xml.XMLConstants;
@@ -49,12 +47,7 @@ public class ValidatingExpressionReader implements MessageBodyReader<Calculation
         try {
             return (CalculationRequest) unmarshaller.unmarshal(entityStream);
         } catch (JAXBException e) {
-            CalculationResult error = new CalculationResult();
-            error.setError("Malformed XML");
-            throw new WebApplicationException(Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .type(MediaType.APPLICATION_XML_TYPE)
-                    .entity(error).build());
+            throw new WebApplicationException(400);
         }
     }
 }

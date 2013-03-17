@@ -124,9 +124,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <generatePackage>restcalc.expr</generatePackage>
+                    <debug>true</debug>
                     <bindingIncludes>
-                        <bindingInclude>binding.jxb</bindingInclude>
+                        <include>*.jxb</include>
                     </bindingIncludes>
                 </configuration>
             </plugin>

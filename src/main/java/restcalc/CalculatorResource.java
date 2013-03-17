@@ -1,7 +1,7 @@
 package restcalc;
 
 import restcalc.expr.CalculationRequest;
-import restcalc.result.CalculationResult;
+import restcalc.expr.CalculationResult;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

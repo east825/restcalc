@@ -33,10 +33,6 @@
         <jxb:class implClass="restcalc.expr.Expression"/>
     </jxb:bindings>
 
-    <!--<jxb:bindings node="//xsd:complexType[@name='UnaryOperation']">-->
-        <!--<jxb:class implClass="restcalc.expr.extUnaryOperationMixin"/>-->
-    <!--</jxb:bindings>-->
-
     <jxb:bindings node="//xsd:complexType[@name='BinaryOperation']">
         <jxb:class implClass="restcalc.expr.ext.BinaryOperationExt"/>
     </jxb:bindings>
@@ -90,5 +86,11 @@
     <jsb:bindings node="//xsd:element[@name='calc']">
         <jxb:class name="CalculationRequest"/>
     </jsb:bindings>
+
+    <!-- Result element settings -->
+    <jxb:bindings node="//xsd:element[@name='result']">
+        <jsb:class name="CalculationResult"/>
+    </jxb:bindings>
+
 
 </jxb:bindings>

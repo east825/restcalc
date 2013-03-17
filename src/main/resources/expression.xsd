@@ -64,9 +64,17 @@
         </xsd:choice>
     </xsd:group>
 
+    <!-- Calculation request -->
     <xsd:element name="calc">
         <xsd:complexType>
             <xsd:group ref="anyExpr"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- Calculation result -->
+    <xsd:element name="result">
+        <xsd:complexType>
+            <xsd:attribute name="value" type="xsd:double"/>
         </xsd:complexType>
     </xsd:element>
 
