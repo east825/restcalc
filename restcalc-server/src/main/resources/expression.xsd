@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+            jxb:version="2.0">
+
+    <!--All possible root elements-->
+    <xsd:element name="sum">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="SumExpression"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="sub">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="SubExpression"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="mult">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="MultExpression"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="div">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="DivExpression"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="neg">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="NegExpression"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="const">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="ConstantExpression"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!--Helper group: any of defined expression types-->
+    <xsd:group name="anyExpr">
+        <xsd:choice>
+            <xsd:element ref="sum"/>
+            <xsd:element ref="sub"/>
+            <xsd:element ref="mult"/>
+            <xsd:element ref="div"/>
+            <xsd:element ref="neg"/>
+            <xsd:element ref="const"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <!-- Calculation request -->
+    <xsd:element name="calc">
+        <xsd:complexType>
+            <xsd:group ref="anyExpr"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- Calculation result -->
+    <xsd:element name="result">
+        <xsd:complexType>
+            <xsd:attribute name="value" type="xsd:double"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- Common expression supertype -->
+    <xsd:complexType name="Expression" abstract="true"/>
+
+    <xsd:complexType name="ConstantExpression" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="Expression">
+                <xsd:attribute name="value" type="xsd:double" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--An operation requiring two operands-->
+    <xsd:complexType name="BinaryOperation" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="Expression">
+                <xsd:sequence minOccurs="2" maxOccurs="2">
+                    <xsd:group ref="anyExpr"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--An operation consuming single operand-->
+    <xsd:complexType name="UnaryOperation" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="Expression">
+                <xsd:sequence>
+                    <xsd:group ref="anyExpr"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="SumExpression" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="BinaryOperation"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="SubExpression" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="BinaryOperation"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="DivExpression" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="BinaryOperation"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="MultExpression" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="BinaryOperation"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="NegExpression" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="UnaryOperation"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+</xsd:schema>
