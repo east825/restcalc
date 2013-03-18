@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <application xmlns="http://wadl.dev.java.net/2009/02">
+    <grammars>
+        <include href="../resources/expression.xsd"/>
+    </grammars>
     <resources base="http://restcalc:8000/">
         <resource path="/calc">
             <method id="calcExpression" name="POST">
                 <request>
-                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/xml" element="calc"/>
                 </request>
-                <response>
-                    <representation mediaType="application/xml"/>
+                <response status="200">
+                    <representation mediaType="application/xml" element="result"/>
                 </response>
             </method>
         </resource>
